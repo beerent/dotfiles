@@ -249,13 +249,6 @@ require("lazy").setup({
 
   "ThePrimeagen/harpoon",
   { "catppuccin/nvim",       name = "catppuccin", priority = 1000 },
-  {
-    "kdheepak/lazygit.nvim",
-    -- optional for floating window border decoration
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-  },
 
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -374,6 +367,8 @@ vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 
 -- MY CUSTOM KEYMAPPINGS
 vim.keymap.set("n", "<leader>p", ":Format<return>")
+vim.keymap.set("n", "<leader>lg", ":LazyGit<return>")
+vim.keymap.set("n", "<leader>db", ":DBUIToggle<return>")
 vim.keymap.set("n", "ff", ":Telescope fd <return>")
 vim.keymap.set("n", "fd", ":Telescope live_grep <return>")
 vim.keymap.set("n", "<esc>", ":noh<cr>")
