@@ -44,6 +44,17 @@ local on_attach = function(_, bufnr)
   end, { desc = "Format current buffer with LSP" })
 end
 
+-- prevent dadbod from folding results
+-- autocmd FileType dbout setlocal nofoldenable
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("disable_folding", { clear = true }),
+  pattern = "dbout",
+  desc = "Disable folding for dbout filetype",
+  callback = function()
+    vim.opt.foldenable = false
+  end,
+})
+
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = vim.api.nvim_create_augroup("format_on_save", { clear = true }),
   pattern = "*",
