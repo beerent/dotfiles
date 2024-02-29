@@ -23,6 +23,7 @@ vim.keymap.set("n", "<leader>lg", ":LazyGit<return>")
 vim.keymap.set("n", "<leader>db", ":DBUIToggle<return>")
 vim.keymap.set("n", "ff", ":Telescope fd <return>")
 vim.keymap.set("n", "fd", ":Telescope live_grep <return>")
+vim.keymap.set("n", "tt", "gt")
 vim.keymap.set("n", "<esc>", ":noh<cr>")
 
 vim.keymap.set("n", "<leader>h", ':lua require("harpoon.ui").toggle_quick_menu()<cr>')
@@ -31,11 +32,11 @@ vim.keymap.set("n", "<leader>m", ':lua require("harpoon.mark").add_file()<cr>')
 vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
 vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
 vim.keymap.set("n", "<leader>/", function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-    winblend = 10,
-    previewer = false,
-  }))
+    -- You can pass additional configuration to telescope to change theme, layout, etc.
+    require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
+        winblend = 10,
+        previewer = false,
+    }))
 end, { desc = "[/] Fuzzily search in current buffer" })
 
 vim.keymap.set("n", "<leader>gf", require("telescope.builtin").git_files, { desc = "Search [G]it [F]iles" })
@@ -52,6 +53,13 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnos
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
+-- Open the diagnostic under the cursor in a float window
+vim.keymap.set("n", "<leader>d", function()
+    vim.diagnostic.open_float({
+        border = "rounded",
+    })
+end)
+
 -- NeoTree
 vim.keymap.set("n", "<leader>nf", ":Neotree reveal<CR>", { desc = "find in neotree" })
 vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "toggle neotree" })
@@ -61,13 +69,13 @@ vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "toggle neotre
 
 -- document existing key chains
 require("which-key").register({
-  ["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
-  ["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
-  ["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
-  ["<leader>h"] = { name = "More git", _ = "which_key_ignore" },
-  ["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
-  ["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-  ["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
+    ["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
+    ["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
+    ["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
+    ["<leader>h"] = { name = "More git", _ = "which_key_ignore" },
+    ["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
+    ["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
+    ["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
 })
 
 vim.keymap.set("n", "<leader>dp", require("dapui").toggle, { desc = "Toggle [D]AP UI" })
