@@ -31,11 +31,12 @@ vim.o.mouse = "a"
 --  See `:help 'clipboard'`
 vim.o.clipboard = "unnamedplus"
 
+-- Check if the OS is macOS
 local is_mac = vim.fn.has("mac") == 1
 
 -- Define the clipboard commands based on the OS
-local clipboard_copy_cmd = is_mac and "pbcopy" or "win32yank.exe -i"
-local clipboard_paste_cmd = is_mac and "pbpaste" or "win32yank.exe -o"
+local clipboard_copy_cmd = is_mac and "pbcopy" or "win32yank.exe -i --crlf"
+local clipboard_paste_cmd = is_mac and "pbpaste" or "win32yank.exe -o --lf"
 
 -- Set the clipboard config
 vim.g.clipboard = {
