@@ -47,11 +47,61 @@ vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]esume" })
 
+-- Navigation
+-- Center buffer while navigating
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "{", "{zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "}", "}zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "N", "Nzz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "n", "nzz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "G", "Gzz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "gg", "ggzz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "<C-i>", "<C-i>zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "<C-o>", "<C-o>zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "%", "%zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "*", "*zz", { desc = "Center buffer while navigating" })
+vim.keymap.set("n", "#", "#zz", { desc = "Center buffer while navigating" })
+
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+
+-- Goto next diagnostic of any severity
+vim.keymap.set("n", "]d", function()
+    vim.diagnostic.goto_next({})
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+-- Goto previous diagnostic of any severity
+vim.keymap.set("n", "[d", function()
+    vim.diagnostic.goto_prev({})
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+-- Goto next error diagnostic
+vim.keymap.set("n", "]e", function()
+    vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+-- Goto previous error diagnostic
+vim.keymap.set("n", "[e", function()
+    vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+-- Goto next warning diagnostic
+vim.keymap.set("n", "]w", function()
+    vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN })
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+-- Goto previous warning diagnostic
+vim.keymap.set("n", "[w", function()
+    vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
+    vim.api.nvim_feedkeys("zz", "n", false)
+end)
 
 -- Open the diagnostic under the cursor in a float window
 vim.keymap.set("n", "<leader>d", function()
