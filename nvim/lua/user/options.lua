@@ -13,6 +13,8 @@ vim.opt.breakindent = true
 
 vim.g.copilot_no_tab_map = true
 
+vim.g.swapfile = false
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -35,22 +37,22 @@ vim.o.clipboard = "unnamedplus"
 local is_mac = vim.fn.has("mac") == 1
 
 -- Define the clipboard commands based on the OS
-local clipboard_copy_cmd = is_mac and "pbcopy" or "win32yank.exe -i --crlf"
-local clipboard_paste_cmd = is_mac and "pbpaste" or "win32yank.exe -o --lf"
+-- local clipboard_copy_cmd = is_mac and "pbcopy" or "win32yank.exe -i --crlf"
+-- local clipboard_paste_cmd = is_mac and "pbpaste" or "win32yank.exe -o --lf"
 
 -- Set the clipboard config
-vim.g.clipboard = {
-  name = is_mac and "pbcopy" or "win32yank-wsl",
-  copy = {
-    ["+"] = clipboard_copy_cmd,
-    ["*"] = clipboard_copy_cmd,
-  },
-  paste = {
-    ["+"] = clipboard_paste_cmd,
-    ["*"] = clipboard_paste_cmd,
-  },
-  cache_enabled = 0,
-}
+-- vim.g.clipboard = {
+-- name = is_mac and "pbcopy" or "win32yank-wsl",
+-- copy = {
+-- ["+"] = clipboard_copy_cmd,
+-- ["*"] = clipboard_copy_cmd,
+-- },
+-- paste = {
+-- ["+"] = clipboard_paste_cmd,
+-- ["*"] = clipboard_paste_cmd,
+-- },
+-- cache_enabled = 0,
+-- }
 
 -- Enable break indent
 vim.o.breakindent = true

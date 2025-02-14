@@ -4,6 +4,7 @@ return {
 
 		-- lazy = true,
 		dependencies = {
+			{ "nvim-neotest/nvim-nio" },
 			{
 				"rcarriga/nvim-dap-ui",
 				config = function()
