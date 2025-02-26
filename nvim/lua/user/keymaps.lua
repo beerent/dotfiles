@@ -27,6 +27,16 @@ vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files({ c
 vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep({ cwd = "src" }) end)  -- Only grep in src/
 vim.keymap.set("n", "fs", "<C-^>")
 
+-- open quickfix list
+vim.keymap.set("n", "<leader>q", function()
+    local is_open = vim.fn.getqflist({ winid = 0 }).winid ~= 0
+    if is_open then
+        vim.cmd("cclose")
+    else
+        vim.cmd("copen")
+    end
+end, { desc = "Toggle Quickfix List" })
+
 vim.keymap.set("n", "fo", ":only<return>")
 vim.keymap.set("n", "tt", "gt")
 vim.keymap.set("n", "<esc>", ":noh<cr>")
@@ -52,6 +62,9 @@ vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { de
 vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]esume" })
+
+-- mapping to open quickfix list in telescope:
+vim.keymap.set("n", "<leader>q", require("telescope.builtin").quickfix, { desc = "[Q]uickfix" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
