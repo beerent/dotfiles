@@ -173,6 +173,7 @@ require("lazy").setup({
   -- my custom plugins
 
   "nvimtools/none-ls.nvim",
+
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
@@ -184,10 +185,10 @@ require("lazy").setup({
     },
     opts = {
       window = {
-        width = 60, -- adjust this value to your preference
+        position = "right",
+        width = 60,
       },
     },
-
   },
 
   {
