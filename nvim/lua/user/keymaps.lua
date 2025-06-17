@@ -23,8 +23,8 @@ vim.keymap.set("n", "<leader>lg", ":LazyGit<return>")
 vim.keymap.set("n", "<leader>db", ":DBUIToggle<return>")
 vim.keymap.set("n", "ff", ":Telescope fd <return>")
 vim.keymap.set("n", "fd", ":Telescope live_grep <return>")
-vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files({ cwd = "src" }) end) -- Only search in src/
-vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep({ cwd = "src" }) end)  -- Only grep in src/
+vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files() end)
+vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep() end)
 vim.keymap.set("n", "fs", "<C-^>")
 
 -- open quickfix list
