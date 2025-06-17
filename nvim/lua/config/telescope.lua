@@ -9,6 +9,10 @@ end
 telescope.setup({
   defaults = {
     layout_strategy = "vertical",
+    file_ignore_patterns = {
+      "public/.*",
+      "node_modules/.*",
+    },
     mappings = {
       i = {
         ["<C-u>"] = false,
