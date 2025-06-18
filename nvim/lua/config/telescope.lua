@@ -32,7 +32,7 @@ telescope.setup({
       "--glob=!*.lock",
       "--glob=src/**",     -- Focus on src by default
       "--max-filesize=1M", -- Skip files >1MB
-      "--max-depth=5",     -- Limit directory depth
+      "--max-depth=8",     -- Limit directory depth
     },
 
     path_display = { "truncate" },
@@ -107,7 +107,6 @@ telescope.setup({
         "--glob", "!vendor/*",
         "--glob", "!*.DS_Store",
         "--glob", "!*.lock",
-        "--glob", "src/**",
       },
     },
     quickfix = {
@@ -186,4 +185,3 @@ function _G.telescope_lsp_keymaps(client, bufnr)
     vim.cmd("caddexpr expand('%') .. ':' .. line('.') .. ':' .. getline('.')")
   end, "Add line to quickfix")
 end
-
