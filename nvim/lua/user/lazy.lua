@@ -61,7 +61,6 @@ require("lazy").setup({
 
       -- Adds LSP completion capabilities
       "hrsh7th/cmp-nvim-lsp",
-      "wfxr/minimap.vim",
 
       -- Adds a number of user-friendly snippets
       "rafamadriz/friendly-snippets",

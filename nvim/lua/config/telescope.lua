@@ -30,7 +30,6 @@ telescope.setup({
       "--glob=!vendor/*",
       "--glob=!*.DS_Store",
       "--glob=!*.lock",
-      "--glob=src/**",     -- Focus on src by default
       "--max-filesize=1M", -- Skip files >1MB
       "--max-depth=8",     -- Limit directory depth
     },
