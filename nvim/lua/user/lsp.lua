@@ -12,7 +12,7 @@ M.on_attach = function(client, bufnr)
 
     _G.telescope_lsp_keymaps(client, bufnr)
 
-    nmap("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+    nmap("fr", vim.lsp.buf.rename, "[R]e[n]ame")
     nmap("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
     nmap("K", vim.lsp.buf.hover, "Hover Documentation")
     nmap("<C-k>", vim.lsp.buf.signature_help, "Signature Documentation")
