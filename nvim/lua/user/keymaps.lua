@@ -21,10 +21,20 @@ vim.api.nvim_set_keymap("n", "<Leader>cr", ":luafile ~/.config/nvim/init.lua<CR>
 vim.keymap.set("n", "<leader>p", ":Format<return>")
 vim.keymap.set("n", "<leader>lg", ":LazyGit<return>")
 vim.keymap.set("n", "<leader>db", ":DBUIToggle<return>")
-vim.keymap.set("n", "ff", ":Telescope fd <return>")
-vim.keymap.set("n", "fd", ":Telescope live_grep <return>")
 vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files() end)
 vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep() end)
+vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references() end)
+vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end)
+vim.keymap.set("n", "fr", vim.lsp.buf.rename, { desc = "[F]unction [R]ename" })
+vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
+
+vim.keymap.set("n", "qq", function() 
+    if vim.fn.exists(":Neotree") == 2 then
+        vim.cmd("Neotree close")
+    end
+    vim.cmd("qa")
+end, { desc = "Close NeoTree and Quit" })
+
 vim.keymap.set("n", "fs", "<C-^>")
 
 -- open quickfix list
