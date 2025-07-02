@@ -1,17 +1,5 @@
 local M = {}
 
--- Format on save
-vim.api.nvim_create_autocmd("BufWritePre", {
-    group = vim.api.nvim_create_augroup("format_on_save", { clear = true }),
-    pattern = "*",
-    desc = "Run LSP formatting on a file on save",
-    callback = function()
-        if vim.fn.exists(":Format") > 0 then
-            vim.cmd.Format()
-        end
-    end,
-})
-
 -- Mason and LSP setup
 require("mason").setup()
 require("mason-lspconfig").setup()
@@ -24,17 +12,6 @@ local servers = {
         },
     },
 }
-
-local null_ls = require("null-ls")
-local formatting = null_ls.builtins.formatting
-
-null_ls.setup({
-    border = "rounded",
-    sources = {
-        formatting.stylua,
-        formatting.prettierd,
-    },
-})
 
 require("neodev").setup()
 

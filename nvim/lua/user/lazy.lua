@@ -141,8 +141,6 @@ require("lazy").setup({
 
   -- my custom plugins
 
-  "nvimtools/none-ls.nvim",
-
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",

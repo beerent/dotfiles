@@ -18,7 +18,6 @@ vim.api.nvim_set_keymap("n", "<Leader>ce", ":edit ~/.config/nvim/init.lua<CR>", 
 -- Keybinding to reload Lua configuration
 vim.api.nvim_set_keymap("n", "<Leader>cr", ":luafile ~/.config/nvim/init.lua<CR>", { noremap = true, silent = true })
 
-vim.keymap.set("n", "<leader>p", ":Format<return>")
 vim.keymap.set("n", "<leader>lg", ":LazyGit<return>")
 vim.keymap.set("n", "<leader>db", ":DBUIToggle<return>")
 vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files() end)
@@ -28,7 +27,7 @@ vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definition
 vim.keymap.set("n", "fr", vim.lsp.buf.rename, { desc = "[F]unction [R]ename" })
 vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
 
-vim.keymap.set("n", "qq", function() 
+vim.keymap.set("n", "fq", function()
     if vim.fn.exists(":Neotree") == 2 then
         vim.cmd("Neotree close")
     end
@@ -91,7 +90,8 @@ end)
 
 -- NeoTree
 vim.keymap.set("n", "<leader>nf", ":Neotree reveal<CR>", { desc = "find in neotree" })
-vim.keymap.set("n", "<leader>nn", ":Neotree toggle<CR>", { desc = "toggle neotree" })
+vim.keymap.set("n", "<leader>n", ":Neotree focus<CR>", { desc = "toggle neotree" })
+vim.keymap.set("n", "<leader>nn", ":Neotree close<CR>", { desc = "toggle neotree" })
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
@@ -155,4 +155,8 @@ end)
 vim.keymap.set("n", "[w", function()
     vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
     vim.api.nvim_feedkeys("zz", "n", false)
+end)
+
+vim.keymap.set("n", "<leader>p", function()
+    require("conform").format({ async = true, lsp_fallback = true })
 end)
