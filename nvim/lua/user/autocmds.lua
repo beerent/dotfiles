@@ -1,0 +1,1 @@
+-- place any commands you want to run after startup here

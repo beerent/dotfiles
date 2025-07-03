@@ -1,3 +1,5 @@
+-- used for formatting code in Neovim using conform.nvim plugin
+
 return {
     "stevearc/conform.nvim",
     opts = {

@@ -125,6 +125,7 @@ telescope.setup({
 -- Enable telescope extensions
 pcall(require("telescope").load_extension, "fzf")
 pcall(require("telescope").load_extension, "live_grep_args")
+pcall(require("telescope").load_extension, "ui-select")
 
 -- Debounced live_grep for performance
 local debounce = require("plenary.async").debounce

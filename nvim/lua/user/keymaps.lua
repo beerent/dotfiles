@@ -96,8 +96,6 @@ vim.keymap.set("n", "<leader>nn", ":Neotree close<CR>", { desc = "toggle neotree
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 
-vim.keymap.set("n", "<leader>dp", require("dapui").toggle, { desc = "Toggle [D]AP UI" })
-
 -- Center buffer while navigating
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")

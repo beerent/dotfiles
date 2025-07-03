@@ -155,6 +155,9 @@ require("lazy").setup({
         position = "right",
         width = 60,
       },
+      filesystem = {
+        hijack_netrw_behavior = "disabled", -- This prevents auto-opening
+      },
     },
   },
 
