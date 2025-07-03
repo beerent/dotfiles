@@ -27,6 +27,12 @@ vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definition
 vim.keymap.set("n", "fr", vim.lsp.buf.rename, { desc = "[F]unction [R]ename" })
 vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
 
+-- relouad neovim configuration
+vim.keymap.set("n", "<leader>rf", function()
+    vim.cmd("source $MYVIMRC")
+    vim.notify("Configuration reloaded!", vim.log.levels.INFO)
+end, { desc = "Reload Neovim Configuration" })
+
 vim.keymap.set("n", "fq", function()
     if vim.fn.exists(":Neotree") == 2 then
         vim.cmd("Neotree close")
