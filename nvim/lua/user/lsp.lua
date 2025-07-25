@@ -15,6 +15,9 @@ local servers = {
 
 require("neodev").setup()
 
+-- Increase LSP timeout to prevent random errors
+-- Note: vim.lsp.set_config doesn't exist, removing this configuration
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 

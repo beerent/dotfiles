@@ -180,11 +180,7 @@ require("lazy").setup({
   },
 
   "ThePrimeagen/harpoon",
-  { "catppuccin/nvim",       name = "catppuccin", priority = 1000 },
-
-  dependencies = {
-    "nvim-lua/plenary.nvim",
-  },
+  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.

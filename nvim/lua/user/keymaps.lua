@@ -164,3 +164,7 @@ end)
 vim.keymap.set("n", "<leader>p", function()
     require("conform").format({ async = true, lsp_fallback = true })
 end)
+
+vim.keymap.set("n", "<leader>o", function()
+    vim.cmd("LspRestart")
+end)
