@@ -4,6 +4,7 @@ if not has_telescope then
   return
 end
 
+
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 telescope.setup({
@@ -83,6 +84,35 @@ telescope.setup({
         ["<C-u>"] = false,
         ["<C-d>"] = false,
       },
+      n = {
+        ["<C-a>"] = function(prompt_bufnr)
+          local action_state = require("telescope.actions.state")
+          local picker = action_state.get_current_picker(prompt_bufnr)
+          local manager = picker.manager
+          
+          local qf_list = {}
+          for entry in manager:iter() do
+            if entry.filename or entry.bufnr then
+              table.insert(qf_list, {
+                filename = entry.filename or vim.api.nvim_buf_get_name(entry.bufnr),
+                lnum = entry.lnum or 1,
+                col = entry.col or 1,
+                text = entry.text or entry.display or "",
+              })
+            end
+          end
+          
+          vim.fn.setqflist(qf_list)
+          require("telescope.actions").close(prompt_bufnr)
+          
+          -- Display popup notification
+          require("notify")("Added " .. #qf_list .. " items to quickfix", "info", {
+            title = "Telescope → Quickfix",
+            timeout = 3000,
+            stages = "fade_in_slide_out",
+          })
+        end,
+      },
     },
   },
   pickers = {
@@ -112,6 +142,33 @@ telescope.setup({
       previewer = require("telescope.config").values.qflist_previewer({}),
       preview = {
         hide_on_startup = false,
+      },
+      mappings = {
+        n = {
+          ["dd"] = function(prompt_bufnr)
+            local action_state = require("telescope.actions.state")
+            local selection = action_state.get_selected_entry()
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            
+            if selection then
+              local qflist = vim.fn.getqflist()
+              table.remove(qflist, selection.index)
+              vim.fn.setqflist(qflist)
+              
+              -- Refresh the picker
+              require("telescope.actions").close(prompt_bufnr)
+              require("telescope.builtin").quickfix({
+                initial_mode = "normal",
+                previewer = require("telescope.config").values.qflist_previewer({}),
+              })
+              
+              require("notify")("Removed item from quickfix", "info", {
+                title = "Quickfix",
+                timeout = 2000,
+              })
+            end
+          end,
+        },
       },
     },
   },
@@ -148,13 +205,6 @@ vim.keymap.set("n", "<leader>fs",
   ":lua require('telescope').extensions.live_grep_args.live_grep_args({ default_text = '>src ' })<CR>",
   { desc = "Live grep in src" })
 
--- Prevent quickfix from automatically opening after Ctrl-Q
-vim.keymap.set("v", "<C-q>", function()
-  local view = vim.fn.winsaveview()
-  vim.cmd('normal! gv"zy')
-  vim.cmd("grep! -R " .. vim.fn.shellescape(vim.fn.getreg("z")))
-  vim.fn.winrestview(view)
-end, { desc = "Populate quickfix without opening it" })
 
 -- LSP-related telescope keymaps
 function _G.telescope_lsp_keymaps(client, bufnr)
@@ -171,16 +221,4 @@ function _G.telescope_lsp_keymaps(client, bufnr)
   nmap("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
   nmap("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
   nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-  nmap("fq", function()
-    require("telescope.builtin").quickfix({
-      initial_mode = "normal",
-      previewer = require("telescope.config").values.qflist_previewer({}),
-      preview = {
-        hide_on_startup = false,
-      },
-    })
-  end, "Show quickfix list in Telescope")
-  nmap("fa", function()
-    vim.cmd("caddexpr expand('%') .. ':' .. line('.') .. ':' .. getline('.')")
-  end, "Add line to quickfix")
 end

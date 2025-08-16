@@ -42,15 +42,14 @@ end, { desc = "Close NeoTree and Quit" })
 
 vim.keymap.set("n", "fs", "<C-^>")
 
--- open quickfix list
+-- quickfix list keymaps
 vim.keymap.set("n", "<leader>q", function()
-    local is_open = vim.fn.getqflist({ winid = 0 }).winid ~= 0
-    if is_open then
-        vim.cmd("cclose")
-    else
-        vim.cmd("copen")
-    end
-end, { desc = "Toggle Quickfix List" })
+    require("telescope.builtin").quickfix({
+        initial_mode = "normal",
+        previewer = require("telescope.config").values.qflist_previewer({}),
+    })
+end, { desc = "Toggle Telescope Quickfix List" })
+
 
 vim.keymap.set("n", "fo", ":only<return>")
 vim.keymap.set("n", "tt", "gt")
@@ -58,6 +57,8 @@ vim.keymap.set("n", "<esc>", ":noh<cr>")
 
 vim.keymap.set("n", "<leader>h", ':lua require("harpoon.ui").toggle_quick_menu()<cr>')
 vim.keymap.set("n", "<leader>m", ':lua require("harpoon.mark").add_file()<cr>')
+--vim.keymap.set("n", "<>", ':lua require("harpoon.mark").add_file()<cr>')
+--vim.keymap.set("n", "<;>", ':lua require("harpoon.ui").toggle_quick_menu()<cr>')
 vim.keymap.set("v", "<C-r>", "\"hy:%s/<C-r>h//g<left><left>")
 
 vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
@@ -78,14 +79,12 @@ vim.keymap.set("n", "<leader>sg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 vim.keymap.set("n", "<leader>sr", require("telescope.builtin").resume, { desc = "[S]earch [R]esume" })
 
--- mapping to open quickfix list in telescope:
-vim.keymap.set("n", "<leader>q", require("telescope.builtin").quickfix, { desc = "[Q]uickfix" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Open floating diagnostic message" })
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+vim.keymap.set("n", "<leader>ql", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- Open the diagnostic under the cursor in a float window
 vim.keymap.set("n", "<leader>d", function()
