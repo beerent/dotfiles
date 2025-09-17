@@ -166,7 +166,107 @@ vim.api.nvim_create_autocmd({
   callback = start_session
 })
 
--- Add the fpt keymap
+-- Keep timer active when entering terminal mode but still have a timeout
+vim.api.nvim_create_autocmd({"TermEnter", "BufEnter"}, {
+  callback = function()
+    if vim.bo.buftype == "terminal" then
+      if not is_active then
+        -- Start session when entering terminal
+        start_session()
+      elseif is_active then
+        -- Reset the stop timer with a longer timeout for terminal work
+        if stop_timer then
+          vim.fn.timer_stop(stop_timer)
+        end
+
+        -- Set a 90-second timeout while in terminal
+        stop_timer = vim.fn.timer_start(90000, function() -- 90 seconds
+          if is_active then
+            is_active = false
+            local duration = os.time() - session_start_time
+
+            for _, type_key in ipairs({"day", "week", "month", "project"}) do
+              local total = load_total(type_key)
+              save_total(type_key, total + duration)
+            end
+
+            local daily_total = load_total("day")
+            notify("🔴 Stopped coding (90s idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
+          end
+          stop_timer = nil
+        end)
+      end
+    end
+  end
+})
+
+-- Resume normal timer when leaving terminal
+vim.api.nvim_create_autocmd({"BufLeave"}, {
+  callback = function()
+    if vim.bo.buftype == "terminal" and is_active then
+      -- Restart normal 10-second timer when leaving terminal
+      start_session()
+    end
+  end
+})
+
+-- Track terminal activity (when typing in terminal)
+vim.api.nvim_create_autocmd("TermChanged", {
+  callback = function()
+    if is_active then
+      -- Reset the 90-second timer on terminal activity
+      if stop_timer then
+        vim.fn.timer_stop(stop_timer)
+      end
+
+      stop_timer = vim.fn.timer_start(90000, function() -- 90 seconds
+        if is_active then
+          is_active = false
+          local duration = os.time() - session_start_time
+
+          for _, type_key in ipairs({"day", "week", "month", "project"}) do
+            local total = load_total(type_key)
+            save_total(type_key, total + duration)
+          end
+
+          local daily_total = load_total("day")
+          notify("🔴 Stopped coding (90s idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
+        end
+        stop_timer = nil
+      end)
+    end
+  end
+})
+
+
+-- Manual pause/resume function
+local function toggle_pause()
+  if is_active then
+    -- Pause: save current session and stop
+    is_active = false
+    if stop_timer then
+      vim.fn.timer_stop(stop_timer)
+      stop_timer = nil
+    end
+
+    local duration = os.time() - session_start_time
+    for _, type_key in ipairs({"day", "week", "month", "project"}) do
+      local total = load_total(type_key)
+      save_total(type_key, total + duration)
+    end
+
+    notify("⏸️  Timer paused - Session saved: " .. format_duration(duration))
+  else
+    -- Resume: start new session
+    start_session()
+    notify("▶️  Timer resumed")
+  end
+end
+
+-- Add the fpt keymap for stats
 vim.keymap.set("n", "fpt", show_stats, { desc = "Show coding timer stats" })
+
+-- Add fps keymap for pause/resume
+vim.keymap.set("n", "fps", toggle_pause, { desc = "Pause/resume coding timer" })
 
 return {}
