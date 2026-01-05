@@ -1,5 +1,5 @@
 -- Dead simple coding timer
--- Notifies when you start typing and when you stop for 10 seconds
+-- Notifies when you start typing and when you stop for 1 minute
 
 local is_active = false
 local stop_timer = nil
@@ -58,14 +58,30 @@ local function notify(message)
 end
 
 local function format_duration(seconds)
-  local minutes = math.floor(seconds / 60)
+  local days = math.floor(seconds / 86400)
+  local hours = math.floor((seconds % 86400) / 3600)
+  local minutes = math.floor((seconds % 3600) / 60)
   local secs = seconds % 60
 
-  if minutes > 0 then
-    return string.format("%dm %ds", minutes, secs)
-  else
-    return string.format("%ds", secs)
+  local parts = {}
+
+  if days > 0 then
+    table.insert(parts, string.format("%dd", days))
   end
+
+  if hours > 0 then
+    table.insert(parts, string.format("%dh", hours))
+  end
+
+  if minutes > 0 then
+    table.insert(parts, string.format("%dm", minutes))
+  end
+
+  if secs > 0 or #parts == 0 then
+    table.insert(parts, string.format("%ds", secs))
+  end
+
+  return table.concat(parts, " ")
 end
 
 local function start_session()
@@ -81,8 +97,8 @@ local function start_session()
     stop_timer = nil
   end
 
-  -- Start a new 10-second timer to detect when you stop
-  stop_timer = vim.fn.timer_start(10000, function()
+  -- Start a new 1-minute timer to detect when you stop
+  stop_timer = vim.fn.timer_start(60000, function()
     if is_active then
       is_active = false
       local duration = os.time() - session_start_time
@@ -94,7 +110,7 @@ local function start_session()
       end
 
       local daily_total = load_total("day")
-      notify("🔴 Stopped coding (10s idle) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
+      notify("🔴 Stopped coding (1m idle) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
     end
     stop_timer = nil
   end)
@@ -179,8 +195,8 @@ vim.api.nvim_create_autocmd({"TermEnter", "BufEnter"}, {
           vim.fn.timer_stop(stop_timer)
         end
 
-        -- Set a 90-second timeout while in terminal
-        stop_timer = vim.fn.timer_start(90000, function() -- 90 seconds
+        -- Set a 5-minute timeout while in terminal
+        stop_timer = vim.fn.timer_start(300000, function() -- 300 seconds (5 minutes)
           if is_active then
             is_active = false
             local duration = os.time() - session_start_time
@@ -191,7 +207,7 @@ vim.api.nvim_create_autocmd({"TermEnter", "BufEnter"}, {
             end
 
             local daily_total = load_total("day")
-            notify("🔴 Stopped coding (90s idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
+            notify("🔴 Stopped coding (5m idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
           end
           stop_timer = nil
         end)
@@ -204,7 +220,7 @@ vim.api.nvim_create_autocmd({"TermEnter", "BufEnter"}, {
 vim.api.nvim_create_autocmd({"BufLeave"}, {
   callback = function()
     if vim.bo.buftype == "terminal" and is_active then
-      -- Restart normal 10-second timer when leaving terminal
+      -- Restart normal 1-minute timer when leaving terminal
       start_session()
     end
   end
@@ -214,12 +230,12 @@ vim.api.nvim_create_autocmd({"BufLeave"}, {
 vim.api.nvim_create_autocmd("TermChanged", {
   callback = function()
     if is_active then
-      -- Reset the 90-second timer on terminal activity
+      -- Reset the 5-minute timer on terminal activity
       if stop_timer then
         vim.fn.timer_stop(stop_timer)
       end
 
-      stop_timer = vim.fn.timer_start(90000, function() -- 90 seconds
+      stop_timer = vim.fn.timer_start(300000, function() -- 300 seconds (5 minutes)
         if is_active then
           is_active = false
           local duration = os.time() - session_start_time
@@ -230,7 +246,7 @@ vim.api.nvim_create_autocmd("TermChanged", {
           end
 
           local daily_total = load_total("day")
-          notify("🔴 Stopped coding (90s idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
+          notify("🔴 Stopped coding (3m idle in terminal) - Session: " .. format_duration(duration) .. " | Today: " .. format_duration(daily_total))
         end
         stop_timer = nil
       end)

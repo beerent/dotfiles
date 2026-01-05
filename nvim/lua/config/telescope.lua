@@ -149,19 +149,19 @@ telescope.setup({
             local action_state = require("telescope.actions.state")
             local selection = action_state.get_selected_entry()
             local picker = action_state.get_current_picker(prompt_bufnr)
-            
+
             if selection then
               local qflist = vim.fn.getqflist()
               table.remove(qflist, selection.index)
               vim.fn.setqflist(qflist)
-              
+
               -- Refresh the picker
               require("telescope.actions").close(prompt_bufnr)
               require("telescope.builtin").quickfix({
                 initial_mode = "normal",
                 previewer = require("telescope.config").values.qflist_previewer({}),
               })
-              
+
               require("notify")("Removed item from quickfix", "info", {
                 title = "Quickfix",
                 timeout = 2000,
@@ -170,6 +170,47 @@ telescope.setup({
           end,
         },
       },
+    },
+    marks = {
+      initial_mode = "normal",
+      attach_mappings = function(prompt_bufnr, map)
+        local action_state = require("telescope.actions.state")
+        local actions = require("telescope.actions")
+
+        map("n", "dd", function()
+          local selection = action_state.get_selected_entry()
+          if selection then
+            local mark = selection.value:match("^(%S+)")
+
+            -- Only allow deletion of user-defined marks (a-z, A-Z)
+            if mark:match("^[a-zA-Z]$") then
+              actions.close(prompt_bufnr)
+
+              -- For lowercase marks (buffer-local), we need to be in the correct buffer
+              if mark:match("^[a-z]$") and selection.filename then
+                -- Open the file and delete the mark there
+                vim.cmd("edit " .. vim.fn.fnameescape(selection.filename))
+              end
+
+              vim.cmd("delmarks " .. mark)
+
+              -- Reopen marks picker
+              require("telescope.builtin").marks({ initial_mode = "normal" })
+              require("notify")("Deleted mark '" .. mark .. "'", "info", {
+                title = "Marks",
+                timeout = 2000,
+              })
+            else
+              require("notify")("Cannot delete automatic mark '" .. mark .. "'", "warn", {
+                title = "Marks",
+                timeout = 2000,
+              })
+            end
+          end
+        end)
+
+        return true
+      end,
     },
   },
   extensions = {

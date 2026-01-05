@@ -1,11 +1,21 @@
 local M = {}
 
--- Mason and LSP setup
+-- Mason setup (for installing LSP servers)
 require("mason").setup()
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup({
+    automatic_installation = true,
+})
 
-local servers = {
-    lua_ls = {
+require("neodev").setup()
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+-- Configure LSP servers using Neovim 0.11+ API
+vim.lsp.config.lua_ls = {
+    capabilities = capabilities,
+    on_attach = M.on_attach,
+    settings = {
         Lua = {
             workspace = { checkThirdParty = false },
             telemetry = { enable = false },
@@ -13,28 +23,8 @@ local servers = {
     },
 }
 
-require("neodev").setup()
-
--- Increase LSP timeout to prevent random errors
--- Note: vim.lsp.set_config doesn't exist, removing this configuration
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-
-local mason_lspconfig = require("mason-lspconfig")
-mason_lspconfig.setup({
-    ensure_installed = vim.tbl_keys(servers),
-})
-
--- Configure each LSP server
-for server_name, config in pairs(servers) do
-    require("lspconfig")[server_name].setup({
-        capabilities = capabilities,
-        on_attach = M.on_attach,
-        settings = config,
-        filetypes = (config or {}).filetypes,
-    })
-end
+-- Enable the LSP server
+vim.lsp.enable("lua_ls")
 
 -- nvim-cmp setup
 local cmp = require("cmp")

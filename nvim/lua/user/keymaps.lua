@@ -25,6 +25,7 @@ vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep() en
 vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references() end)
 vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end)
 vim.keymap.set("n", "fr", vim.lsp.buf.rename, { desc = "[F]unction [R]ename" })
+vim.keymap.set("n", "fm", require("telescope.builtin").marks, { desc = "[F]ind [M]arks" })
 vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
 
 -- relouad neovim configuration
@@ -167,3 +168,18 @@ end)
 vim.keymap.set("n", "<leader>o", function()
     vim.cmd("LspRestart")
 end)
+
+-- Mark setting with notification
+vim.keymap.set("n", "m", function()
+    local char = vim.fn.getcharstr()
+    if char:match("^[a-zA-Z]$") then
+        vim.cmd("normal! m" .. char)
+        vim.notify("Set mark '" .. char .. "'", vim.log.levels.INFO, {
+            title = "Marks",
+            timeout = 2000,
+        })
+    elseif char ~= "" then
+        -- For other mark characters, just set normally without notification
+        vim.cmd("normal! m" .. char)
+    end
+end, { desc = "Set mark with notification" })
