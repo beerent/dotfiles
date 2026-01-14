@@ -34,12 +34,10 @@ vim.keymap.set("n", "<leader>rf", function()
     vim.notify("Configuration reloaded!", vim.log.levels.INFO)
 end, { desc = "Reload Neovim Configuration" })
 
+-- fq - Close current tab (or quit if last tab)
 vim.keymap.set("n", "fq", function()
-    if vim.fn.exists(":Neotree") == 2 then
-        vim.cmd("Neotree close")
-    end
-    vim.cmd("qa")
-end, { desc = "Close NeoTree and Quit" })
+    require("config.tabs").close_tab()
+end, { desc = "[F]ile [Q]uit Tab (or app if last tab)" })
 
 vim.keymap.set("n", "fs", "<C-^>")
 
@@ -53,7 +51,34 @@ end, { desc = "Toggle Telescope Quickfix List" })
 
 
 vim.keymap.set("n", "fo", ":only<return>")
-vim.keymap.set("n", "tt", "gt")
+
+-- Tab Management (load module to setup custom tabline)
+require("config.tabs")
+
+vim.keymap.set("n", "ft", function()
+    require("config.tabs").tab_picker()
+end, { desc = "[F]ind [T]abs" })
+
+-- Ctrl+h/l - Navigate tabs left/right (hold Ctrl, tap h/l)
+vim.keymap.set("n", "<C-h>", "gT", { desc = "Previous tab" })
+vim.keymap.set("n", "<C-l>", "gt", { desc = "Next tab" })
+
+-- tt - New terminal
+vim.keymap.set("n", "tt", function()
+    vim.cmd("tabnew | terminal")
+    vim.cmd("startinsert")
+end, { desc = "[T]erminal [T]ab" })
+
+-- tT - New tab
+vim.keymap.set("n", "tT", function()
+    require("config.tabs").new_tab()
+end, { desc = "[T]ab new" })
+
+-- tr - Rename tab
+vim.keymap.set("n", "tr", function()
+    require("config.tabs").rename_tab()
+end, { desc = "[T]ab [R]ename" })
+
 vim.keymap.set("n", "<esc>", ":noh<cr>")
 
 vim.keymap.set("n", "<leader>h", ':lua require("harpoon.ui").toggle_quick_menu()<cr>')

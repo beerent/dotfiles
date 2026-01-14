@@ -51,3 +51,14 @@ vim.api.nvim_create_autocmd("VimLeave", {
   group = tab_color_group,
   callback = reset_iterm_tab_color,
 })
+
+-- Open blank buffer when opening a directory (instead of netrw)
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    local arg = vim.fn.argv(0)
+    if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+      vim.cmd("bdelete")
+      vim.cmd("enew")
+    end
+  end,
+})
