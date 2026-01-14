@@ -26,6 +26,14 @@ vim.lsp.config.lua_ls = {
 -- Enable the LSP server
 vim.lsp.enable("lua_ls")
 
+-- TypeScript/JavaScript LSP
+vim.lsp.config.ts_ls = {
+    capabilities = capabilities,
+    on_attach = M.on_attach,
+}
+
+vim.lsp.enable("ts_ls")
+
 -- nvim-cmp setup
 local cmp = require("cmp")
 local luasnip = require("luasnip")
