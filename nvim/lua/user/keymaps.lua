@@ -1,6 +1,8 @@
 -- [[ Basic Keymaps ]]
 --
-vim.api.nvim_set_keymap("i", "<C-J>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+vim.keymap.set("i", "<C-J>", function()
+	require("copilot.suggestion").accept()
+end, { silent = true, desc = "Accept Copilot suggestion" })
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
@@ -24,7 +26,12 @@ vim.keymap.set("n", "ff", function() require("telescope.builtin").find_files() e
 vim.keymap.set("n", "fd", function() require("telescope.builtin").live_grep() end)
 vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references() end)
 vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end)
-vim.keymap.set("n", "fr", vim.lsp.buf.rename, { desc = "[F]unction [R]ename" })
+vim.keymap.set("n", "fr", function()
+    vim.lsp.buf.rename()
+    vim.defer_fn(function()
+        vim.cmd("silent! wa")
+    end, 100)
+end, { desc = "[F]unction [R]ename + Save All" })
 vim.keymap.set("n", "fm", require("telescope.builtin").marks, { desc = "[F]ind [M]arks" })
 vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "[C]ode [A]ction" })
 

@@ -1,5 +1,8 @@
 local M = {}
 
+-- Note: We use zbirenbaum/copilot.lua instead of native copilot LSP
+-- No need to disable it - native LSP servers only start when explicitly enabled
+
 -- Mason setup (for installing LSP servers)
 require("mason").setup()
 require("mason-lspconfig").setup({

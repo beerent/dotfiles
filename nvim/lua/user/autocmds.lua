@@ -76,3 +76,28 @@ vim.api.nvim_create_autocmd("TermOpen", {
     end, { buffer = true, desc = "Paste clipboard directly to terminal" })
   end,
 })
+
+-- Prevent Copilot from breaking when terminal buffers are opened
+-- Explicitly detach Copilot from terminal buffers
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    vim.b.copilot_enabled = false
+  end,
+})
+
+-- Re-enable Copilot when leaving terminal and entering a normal buffer
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*",
+  callback = function()
+    local buftype = vim.bo.buftype
+    local filetype = vim.bo.filetype
+    -- Only for normal file buffers (not terminal, quickfix, etc.)
+    if buftype == "" and filetype ~= "" then
+      -- Ensure copilot is enabled for this buffer
+      if vim.b.copilot_enabled == false then
+        vim.b.copilot_enabled = nil
+      end
+    end
+  end,
+})

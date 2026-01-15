@@ -71,6 +71,9 @@ vim.wo.signcolumn = "yes"
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
 
+-- Terminal escape sequence timeout (helps with large paste operations)
+vim.o.ttimeoutlen = 10
+
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
 
