@@ -1,6 +1,7 @@
 return {
 	{
 		"zbirenbaum/copilot.lua",
+		cond = vim.fn.hostname() ~= "vps147-cus20",
 		config = function()
 			require("copilot").setup({
 				panel = {
