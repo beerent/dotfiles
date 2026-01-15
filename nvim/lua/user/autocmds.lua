@@ -62,3 +62,17 @@ vim.api.nvim_create_autocmd("VimEnter", {
     end
   end,
 })
+
+-- Fix large paste in terminal mode by sending clipboard directly to terminal channel
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    vim.keymap.set("t", "<D-v>", function()
+      local clipboard = vim.fn.getreg("+")
+      local channel = vim.bo.channel
+      if channel and clipboard then
+        vim.fn.chansend(channel, clipboard)
+      end
+    end, { buffer = true, desc = "Paste clipboard directly to terminal" })
+  end,
+})

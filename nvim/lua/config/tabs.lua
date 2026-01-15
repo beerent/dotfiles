@@ -324,8 +324,15 @@ function M.setup()
     -- Terminal keymaps
     vim.api.nvim_create_autocmd("TermOpen", {
         callback = function()
-            -- Escape exits terminal mode to normal mode
-            vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+            -- On local Mac: Shift+Escape exits terminal mode (plain Escape passes to nested nvim/claude)
+            -- On remote server: regular Escape exits terminal mode (no nesting issue)
+            local hostname = vim.fn.hostname()
+            local is_remote = hostname == "vps147-cus20"
+            if is_remote then
+                vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+            else
+                vim.keymap.set("t", "<S-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+            end
             -- q in normal mode closes terminal
             vim.keymap.set("n", "q", function()
                 vim.cmd("bd!")
