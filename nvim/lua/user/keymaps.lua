@@ -70,10 +70,12 @@ end, { desc = "[F]ind [T]abs" })
 vim.keymap.set("n", "<C-h>", "gT", { desc = "Previous tab" })
 vim.keymap.set("n", "<C-l>", "gt", { desc = "Next tab" })
 
--- tt - New terminal
+-- tt - New terminal with rename prompt
 vim.keymap.set("n", "tt", function()
     vim.cmd("tabnew | terminal")
-    vim.cmd("startinsert")
+    vim.schedule(function()
+        require("config.tabs").rename_tab()
+    end)
 end, { desc = "[T]erminal [T]ab" })
 
 -- tT - New tab
