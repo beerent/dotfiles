@@ -331,7 +331,7 @@ function M.setup()
             if is_remote then
                 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
             else
-                vim.keymap.set("t", "<S-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+                vim.keymap.set("t", "<C-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
             end
             -- q in normal mode closes terminal
             vim.keymap.set("n", "q", function()

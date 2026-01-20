@@ -217,3 +217,13 @@ vim.keymap.set("n", "m", function()
         vim.cmd("normal! m" .. char)
     end
 end, { desc = "Set mark with notification" })
+
+-- Fix Cmd+V paste for large content (bypasses bracketed paste issues)
+vim.keymap.set({ "n", "v" }, "<D-v>", '"+p', { desc = "Paste from clipboard" })
+vim.keymap.set("i", "<D-v>", function()
+    local clipboard = vim.fn.getreg("+")
+    if clipboard then
+        vim.api.nvim_put(vim.split(clipboard, "\n"), "c", false, true)
+    end
+end, { desc = "Paste from clipboard in insert mode" })
+vim.keymap.set("c", "<D-v>", "<C-r>+", { desc = "Paste from clipboard in command mode" })
