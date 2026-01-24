@@ -227,3 +227,21 @@ vim.keymap.set("i", "<D-v>", function()
     end
 end, { desc = "Paste from clipboard in insert mode" })
 vim.keymap.set("c", "<D-v>", "<C-r>+", { desc = "Paste from clipboard in command mode" })
+vim.keymap.set("t", "<D-v>", function()
+  vim.api.nvim_paste(vim.fn.getreg("+"), true, -1)
+end, { desc = "Paste from clipboard in terminal mode" })
+
+-- Override paste handler to fix large paste in terminal mode
+local original_paste = vim.paste
+vim.paste = function(lines, phase)
+  -- In terminal mode, use chansend for more reliable pasting
+  if vim.fn.mode() == "t" then
+    local chan = vim.b.terminal_job_id
+    if chan then
+      local content = table.concat(lines, "\n")
+      vim.fn.chansend(chan, content)
+      return true
+    end
+  end
+  return original_paste(lines, phase)
+end
