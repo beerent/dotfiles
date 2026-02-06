@@ -57,6 +57,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     local arg = vim.fn.argv(0)
     if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+      -- Set working directory to the opened directory so Telescope searches here
+      vim.cmd("cd " .. vim.fn.fnameescape(vim.fn.fnamemodify(arg, ":p")))
       vim.cmd("bdelete")
       vim.cmd("enew")
     end
@@ -94,10 +96,18 @@ vim.api.nvim_create_autocmd("BufEnter", {
     local filetype = vim.bo.filetype
     -- Only for normal file buffers (not terminal, quickfix, etc.)
     if buftype == "" and filetype ~= "" then
-      -- Ensure copilot is enabled for this buffer
-      if vim.b.copilot_enabled == false then
-        vim.b.copilot_enabled = nil
-      end
+      vim.b.copilot_enabled = nil
+      -- Re-attach Copilot LSP client if it got detached (e.g., after flatten opens a file from a terminal tab)
+      vim.schedule(function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local attached = vim.lsp.get_clients({ bufnr = bufnr, name = "copilot" })
+        if #attached == 0 then
+          local copilot_clients = vim.lsp.get_clients({ name = "copilot" })
+          if #copilot_clients > 0 then
+            vim.lsp.buf_attach_client(bufnr, copilot_clients[1].id)
+          end
+        end
+      end)
     end
   end,
 })

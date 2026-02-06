@@ -69,6 +69,10 @@ end, { desc = "[F]ind [T]abs" })
 -- Ctrl+h/l - Navigate tabs left/right (hold Ctrl, tap h/l)
 vim.keymap.set("n", "<C-h>", "gT", { desc = "Previous tab" })
 vim.keymap.set("n", "<C-l>", "gt", { desc = "Next tab" })
+vim.keymap.set("i", "<C-h>", "<Esc>gT", { desc = "Previous tab" })
+vim.keymap.set("i", "<C-l>", "<Esc>gt", { desc = "Next tab" })
+vim.keymap.set("t", "<C-h>", "<C-\\><C-n>gT", { desc = "Previous tab" })
+vim.keymap.set("t", "<C-l>", "<C-\\><C-n>gt", { desc = "Next tab" })
 
 -- tt - New terminal with rename prompt
 vim.keymap.set("n", "tt", function()

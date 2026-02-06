@@ -44,7 +44,19 @@ function M.tabline()
             end
         end
 
-        s = s .. " " .. tabnr .. ":" .. name .. " "
+        -- Show Claude status icon on non-current tabs
+        local has_bell = vim.fn.gettabvar(tabnr, "claude_bell") == 1 and tabnr ~= current_tab
+        local is_running = vim.fn.gettabvar(tabnr, "claude_running") == 1 and tabnr ~= current_tab
+        local hl_restore = "%#" .. (tabnr == current_tab and "TabLineSel" or "TabLine") .. "#"
+        if has_bell then
+            s = s .. " %#DiagnosticWarn#" .. "🔔" .. hl_restore
+            s = s .. " " .. tabnr .. ":" .. name .. " "
+        elseif is_running then
+            s = s .. " %#DiagnosticInfo#" .. "🧠" .. hl_restore
+            s = s .. " " .. tabnr .. ":" .. name .. " "
+        else
+            s = s .. " " .. tabnr .. ":" .. name .. " "
+        end
     end
 
     -- Fill the rest and reset tab page nr
@@ -322,7 +334,9 @@ function M.setup()
     vim.o.showtabline = 2 -- Always show tabline
 
     -- Terminal keymaps
+    local group = vim.api.nvim_create_augroup("TabsTerminal", { clear = true })
     vim.api.nvim_create_autocmd("TermOpen", {
+        group = group,
         callback = function()
             -- On local Mac: Shift+Escape exits terminal mode (plain Escape passes to nested nvim/claude)
             -- On remote server: regular Escape exits terminal mode (no nesting issue)
