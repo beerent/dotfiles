@@ -10,7 +10,17 @@ return {
 
                 local focus = files[1]
 
-                -- Find the terminal window in the current tabpage and open there
+                -- Prefer the current window — when typing `nvim` in a terminal,
+                -- the current window IS that terminal, so this targets the right one
+                -- even across tabs.
+                local cur_win = vim.api.nvim_get_current_win()
+                local cur_buf = vim.api.nvim_win_get_buf(cur_win)
+                if vim.bo[cur_buf].buftype == "terminal" then
+                    vim.api.nvim_win_set_buf(cur_win, focus.bufnr)
+                    return focus.bufnr, cur_win
+                end
+
+                -- Fallback: find any terminal window in the current tabpage
                 local tabpage = vim.api.nvim_get_current_tabpage()
                 for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
                     local buf = vim.api.nvim_win_get_buf(win)
@@ -21,7 +31,7 @@ return {
                     end
                 end
 
-                -- Fallback: open in current window
+                -- Last fallback: open in current window
                 vim.api.nvim_set_current_buf(focus.bufnr)
                 return focus.bufnr, vim.api.nvim_get_current_win()
             end,
@@ -37,7 +47,12 @@ return {
             post_open = function(opts)
                 local bufname = vim.api.nvim_buf_get_name(opts.bufnr)
                 if bufname ~= "" and vim.fn.isdirectory(bufname) == 1 then
-                    vim.cmd("cd " .. vim.fn.fnameescape(bufname))
+                    -- Ensure we're in the right window before modifying buffers
+                    if opts.winnr and vim.api.nvim_win_is_valid(opts.winnr) then
+                        vim.api.nvim_set_current_win(opts.winnr)
+                    end
+                    -- Use tcd so only this tab's cwd changes, not all tabs
+                    vim.cmd("tcd " .. vim.fn.fnameescape(bufname))
                     vim.api.nvim_buf_delete(opts.bufnr, { force = true })
                     vim.cmd("enew")
                 end
