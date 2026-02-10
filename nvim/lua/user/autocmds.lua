@@ -65,6 +65,13 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
+-- Track the last terminal window so neovim_remote can open files in the right tab
+vim.api.nvim_create_autocmd("TermEnter", {
+    callback = function()
+        vim.g._last_term_win = vim.api.nvim_get_current_win()
+    end,
+})
+
 -- Fix large paste in terminal mode by sending clipboard directly to terminal channel
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "*",
@@ -97,7 +104,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
     -- Only for normal file buffers (not terminal, quickfix, etc.)
     if buftype == "" and filetype ~= "" then
       vim.b.copilot_enabled = nil
-      -- Re-attach Copilot LSP client if it got detached (e.g., after flatten opens a file from a terminal tab)
+      -- Re-attach Copilot LSP client if it got detached (e.g., after opening a file from a terminal tab)
       vim.schedule(function()
         local bufnr = vim.api.nvim_get_current_buf()
         local attached = vim.lsp.get_clients({ bufnr = bufnr, name = "copilot" })
