@@ -74,6 +74,10 @@ vim.keymap.set("i", "<C-l>", "<Esc>gt", { desc = "Next tab" })
 vim.keymap.set("t", "<C-h>", "<C-\\><C-n>gT", { desc = "Previous tab" })
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n>gt", { desc = "Next tab" })
 
+-- Ctrl+Shift+h/l - Move current tab left/right
+vim.keymap.set("n", "<C-S-h>", ":tabmove -1<CR>", { silent = true, desc = "Move tab left" })
+vim.keymap.set("n", "<C-S-l>", ":tabmove +1<CR>", { silent = true, desc = "Move tab right" })
+
 -- tt - New terminal with rename prompt
 vim.keymap.set("n", "tt", function()
     vim.cmd("tabnew | terminal")

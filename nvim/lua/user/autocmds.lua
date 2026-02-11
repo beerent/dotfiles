@@ -86,6 +86,53 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
+-- Prevent terminal output in background tabs from disrupting visual mode.
+-- When leaving a terminal tab, temporarily swap terminal buffers out of their
+-- windows so output doesn't trigger screen redraws. Restore on re-entry.
+local swapped_terminals = {}
+local term_redraw_group = vim.api.nvim_create_augroup("TermRedrawFix", { clear = true })
+
+vim.api.nvim_create_autocmd("TabLeave", {
+    group = term_redraw_group,
+    callback = function()
+        local tabpage = vim.api.nvim_get_current_tabpage()
+        local saved = {}
+        for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+            local bufnr = vim.api.nvim_win_get_buf(winid)
+            if vim.bo[bufnr].buftype == "terminal" then
+                local scratch = vim.api.nvim_create_buf(false, true)
+                vim.bo[scratch].bufhidden = "wipe"
+                table.insert(saved, { win = winid, termbuf = bufnr, scratch = scratch })
+                vim.b[bufnr].hidden_in_tabpage = tabpage
+                vim.api.nvim_win_set_buf(winid, scratch)
+            end
+        end
+        if #saved > 0 then
+            swapped_terminals[tabpage] = saved
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("TabEnter", {
+    group = term_redraw_group,
+    callback = function()
+        local tabpage = vim.api.nvim_get_current_tabpage()
+        local saved = swapped_terminals[tabpage]
+        if saved then
+            for _, entry in ipairs(saved) do
+                if vim.api.nvim_win_is_valid(entry.win) and vim.api.nvim_buf_is_valid(entry.termbuf) then
+                    vim.api.nvim_win_set_buf(entry.win, entry.termbuf)
+                    vim.b[entry.termbuf].hidden_in_tabpage = nil
+                end
+                if vim.api.nvim_buf_is_valid(entry.scratch) then
+                    vim.api.nvim_buf_delete(entry.scratch, { force = true })
+                end
+            end
+            swapped_terminals[tabpage] = nil
+        end
+    end,
+})
+
 -- Prevent Copilot from breaking when terminal buffers are opened
 -- Explicitly detach Copilot from terminal buffers
 vim.api.nvim_create_autocmd("TermOpen", {

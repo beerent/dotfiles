@@ -46,10 +46,18 @@ function M.tabline()
 
         -- Show Claude status icon on non-current tabs
         local has_bell = vim.fn.gettabvar(tabnr, "claude_bell") == 1 and tabnr ~= current_tab
+        local is_compacting = vim.fn.gettabvar(tabnr, "claude_compacting") == 1 and tabnr ~= current_tab
+        local is_waiting = vim.fn.gettabvar(tabnr, "claude_waiting") == 1 and tabnr ~= current_tab
         local is_running = vim.fn.gettabvar(tabnr, "claude_running") == 1 and tabnr ~= current_tab
         local hl_restore = "%#" .. (tabnr == current_tab and "TabLineSel" or "TabLine") .. "#"
         if has_bell then
             s = s .. " %#DiagnosticWarn#" .. "🔔" .. hl_restore
+            s = s .. " " .. tabnr .. ":" .. name .. " "
+        elseif is_compacting then
+            s = s .. " %#DiagnosticInfo#" .. "🔄" .. hl_restore
+            s = s .. " " .. tabnr .. ":" .. name .. " "
+        elseif is_waiting then
+            s = s .. " %#DiagnosticWarn#" .. "⏳" .. hl_restore
             s = s .. " " .. tabnr .. ":" .. name .. " "
         elseif is_running then
             s = s .. " %#DiagnosticInfo#" .. "🧠" .. hl_restore

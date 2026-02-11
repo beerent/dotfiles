@@ -45,6 +45,12 @@ local function find_tab_for_buffer(target_bufnr)
             end
         end
     end
+    -- Fallback: buffer may be temporarily swapped out of its window
+    -- (TermRedrawFix in autocmds.lua) but still belongs to a tab
+    local tabpage = vim.b[target_bufnr].hidden_in_tabpage
+    if tabpage and vim.api.nvim_tabpage_is_valid(tabpage) then
+        return vim.api.nvim_tabpage_get_number(tabpage)
+    end
     return nil
 end
 
@@ -87,15 +93,15 @@ local function set_tab_var(tty, var_name, value)
     vim.cmd("redrawtabline")
 end
 
--- Set bell on the matching tab (only non-current tabs)
-local function set_bell(tty)
+-- Set a tab variable only on non-current tabs (for background tab indicators)
+local function set_tab_var_non_current(tty, var_name)
     local current_tab = vim.fn.tabpagenr()
     tty = tty and tty:gsub("%s+", "") or nil
 
     local tabnr = find_tab_by_tty(tty)
     if tabnr then
         if tabnr ~= current_tab then
-            vim.fn.settabvar(tabnr, "claude_bell", 1)
+            vim.fn.settabvar(tabnr, var_name, 1)
         end
         vim.cmd("redrawtabline")
         return
@@ -106,7 +112,7 @@ local function set_bell(tty)
         if t ~= current_tab then
             for _, bufnr in ipairs(vim.fn.tabpagebuflist(t)) do
                 if vim.fn.getbufvar(bufnr, "&buftype") == "terminal" then
-                    vim.fn.settabvar(t, "claude_bell", 1)
+                    vim.fn.settabvar(t, var_name, 1)
                     break
                 end
             end
@@ -116,7 +122,7 @@ local function set_bell(tty)
 end
 
 -- Called by the Claude Code Stop hook
--- Claude finished: clear running, show bell, play sound
+-- Claude finished: clear running/compacting, show waiting, play sound
 function M.ring(tty)
     if permission_timer then
         vim.fn.timer_stop(permission_timer)
@@ -124,9 +130,10 @@ function M.ring(tty)
     end
 
     set_tab_var(tty, "claude_running", 0)
-    set_bell(tty)
+    set_tab_var(tty, "claude_compacting", 0)
+    set_tab_var_non_current(tty, "claude_waiting")
 
-    if any_non_current_tab_has("claude_bell") then
+    if any_non_current_tab_has("claude_waiting") then
         play_sound("Glass")
     end
 
@@ -134,17 +141,19 @@ function M.ring(tty)
 end
 
 -- Called by the Claude Code PreToolUse hook
--- Claude is working: show running indicator.
+-- Claude is working: show running indicator, clear compacting/waiting.
 -- Also starts a 2s timer: if the tool is still pending (needs permission),
 -- the bell rings. Auto-approved tools complete before the timer fires.
 function M.ring_waiting(tty)
     set_tab_var(tty, "claude_running", 1)
+    set_tab_var(tty, "claude_compacting", 0)
+    set_tab_var(tty, "claude_waiting", 0)
 
     if not permission_timer then
         permission_timer = vim.fn.timer_start(2000, function()
             vim.schedule(function()
                 permission_timer = nil
-                set_bell(tty)
+                set_tab_var_non_current(tty, "claude_bell")
                 if any_non_current_tab_has("claude_bell") then
                     play_sound("Glass")
                 end
@@ -165,6 +174,14 @@ function M.clear_waiting(tty)
     return "ok"
 end
 
+-- Called by the Claude Code PreCompact hook
+-- Context is being compacted: show compacting indicator
+function M.compact(tty)
+    set_tab_var(tty, "claude_compacting", 1)
+    set_tab_var(tty, "claude_running", 0)
+    return "ok"
+end
+
 function M.setup()
     local group = vim.api.nvim_create_augroup("ClaudeBell", { clear = true })
 
@@ -173,8 +190,14 @@ function M.setup()
         group = group,
         callback = function()
             local tabnr = vim.fn.tabpagenr()
-            if vim.fn.gettabvar(tabnr, "claude_bell") == 1 then
-                vim.fn.settabvar(tabnr, "claude_bell", 0)
+            local needs_redraw = false
+            for _, var in ipairs({ "claude_bell", "claude_waiting", "claude_compacting" }) do
+                if vim.fn.gettabvar(tabnr, var) == 1 then
+                    vim.fn.settabvar(tabnr, var, 0)
+                    needs_redraw = true
+                end
+            end
+            if needs_redraw then
                 vim.cmd("redrawtabline")
             end
             if permission_timer then
