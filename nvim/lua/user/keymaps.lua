@@ -96,6 +96,13 @@ vim.keymap.set("n", "tr", function()
     require("config.tabs").rename_tab()
 end, { desc = "[T]ab [R]ename" })
 
+-- tf - Mark tab as claude FREE
+vim.keymap.set("n", "tf", function()
+    local tabnr = vim.fn.tabpagenr()
+    vim.fn.settabvar(tabnr, "tab_name", "claude FREE")
+    vim.notify("Tab renamed to: claude FREE", vim.log.levels.INFO)
+end, { desc = "[T]ab [F]ree - rename to claude FREE" })
+
 vim.keymap.set("n", "<esc>", ":noh<cr>")
 
 vim.keymap.set("n", "<leader>h", ':lua require("harpoon.ui").toggle_quick_menu()<cr>')
