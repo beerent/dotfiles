@@ -57,7 +57,11 @@ vim.keymap.set("n", "<leader>q", function()
 end, { desc = "Toggle Telescope Quickfix List" })
 
 
-vim.keymap.set("n", "fo", ":only<return>")
+vim.keymap.set("n", "fo", ":only<return>", { desc = "Close all splits, keep current" })
+
+-- Split tab vertically (side-by-side)
+vim.keymap.set("n", "st", ":vsplit | terminal<CR>", { silent = true, desc = "[S]plit [T]ab with new terminal" })
+
 
 -- Tab Management (load module to setup custom tabline)
 require("config.tabs")
@@ -66,13 +70,27 @@ vim.keymap.set("n", "ft", function()
     require("config.tabs").tab_picker()
 end, { desc = "[F]ind [T]abs" })
 
--- Ctrl+h/l - Navigate tabs left/right (hold Ctrl, tap h/l)
+-- Ctrl+h/l - Navigate tabs left/right
 vim.keymap.set("n", "<C-h>", "gT", { desc = "Previous tab" })
 vim.keymap.set("n", "<C-l>", "gt", { desc = "Next tab" })
 vim.keymap.set("i", "<C-h>", "<Esc>gT", { desc = "Previous tab" })
 vim.keymap.set("i", "<C-l>", "<Esc>gt", { desc = "Next tab" })
 vim.keymap.set("t", "<C-h>", "<C-\\><C-n>gT", { desc = "Previous tab" })
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n>gt", { desc = "Next tab" })
+
+-- Ctrl+n/p - Navigate splits left/right (from any mode)
+local function split_nav(dir)
+    return function()
+        vim.cmd("wincmd " .. dir)
+        if vim.bo.buftype == "terminal" then vim.cmd("startinsert") end
+    end
+end
+vim.keymap.set("n", "<C-n>", split_nav("l"), { silent = true, desc = "Next split" })
+vim.keymap.set("n", "<C-p>", split_nav("h"), { silent = true, desc = "Previous split" })
+vim.keymap.set("i", "<C-n>", split_nav("l"), { silent = true, desc = "Next split" })
+vim.keymap.set("i", "<C-p>", split_nav("h"), { silent = true, desc = "Previous split" })
+vim.keymap.set("t", "<C-n>", split_nav("l"), { silent = true, desc = "Next split" })
+vim.keymap.set("t", "<C-p>", split_nav("h"), { silent = true, desc = "Previous split" })
 
 -- Ctrl+Shift+h/l - Move current tab left/right
 vim.keymap.set("n", "<C-S-h>", ":tabmove -1<CR>", { silent = true, desc = "Move tab left" })
