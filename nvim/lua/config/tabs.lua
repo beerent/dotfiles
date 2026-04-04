@@ -340,27 +340,6 @@ end
 function M.setup()
     vim.o.tabline = "%!v:lua.require('config.tabs').tabline()"
     vim.o.showtabline = 2 -- Always show tabline
-
-    -- Terminal keymaps
-    local group = vim.api.nvim_create_augroup("TabsTerminal", { clear = true })
-    vim.api.nvim_create_autocmd("TermOpen", {
-        group = group,
-        callback = function()
-            -- On local Mac: Shift+Escape exits terminal mode (plain Escape passes to nested nvim/claude)
-            -- On remote server: regular Escape exits terminal mode (no nesting issue)
-            local hostname = vim.fn.hostname()
-            local is_remote = hostname == "vps147-cus20"
-            if is_remote then
-                vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
-            else
-                vim.keymap.set("t", "<C-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
-            end
-            -- q in normal mode closes terminal
-            vim.keymap.set("n", "q", function()
-                vim.cmd("bd!")
-            end, { buffer = true, desc = "Close terminal" })
-        end,
-    })
 end
 
 -- Auto-setup when module loads

@@ -53,23 +53,47 @@ vim.api.nvim_create_autocmd("VimLeave", {
 })
 
 -- Open blank buffer when opening a directory (instead of netrw)
+-- Open terminal when launched with no arguments
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     local arg = vim.fn.argv(0)
     if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
-      -- Set working directory to the opened directory so Telescope searches here
       vim.cmd("cd " .. vim.fn.fnameescape(vim.fn.fnamemodify(arg, ":p")))
       vim.cmd("bdelete")
       vim.cmd("enew")
+    elseif vim.fn.argc() == 0 then
+      vim.cmd("terminal")
+      vim.opt_local.number = false
+      vim.opt_local.relativenumber = false
+      vim.keymap.set("t", "<C-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+      vim.keymap.set("n", "q", function() vim.cmd("bd!") end, { buffer = true, desc = "Close terminal" })
+      vim.cmd("startinsert")
     end
   end,
 })
 
--- Track the last terminal window so neovim_remote can open files in the right tab
-vim.api.nvim_create_autocmd("TermEnter", {
-    callback = function()
-        vim.g._last_term_win = vim.api.nvim_get_current_win()
-    end,
+-- Terminal keymaps for all terminal buffers
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    local hostname = vim.fn.hostname()
+    if hostname == "vps147-cus20" then
+      vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+    else
+      vim.keymap.set("t", "<C-Esc>", "<C-\\><C-n>", { buffer = true, desc = "Exit terminal mode" })
+    end
+    vim.keymap.set("n", "q", function() vim.cmd("bd!") end, { buffer = true, desc = "Close terminal" })
+  end,
+})
+
+-- Auto-scroll to bottom when entering a terminal window
+vim.api.nvim_create_autocmd("WinEnter", {
+  callback = function()
+    if vim.bo.buftype == "terminal" then
+      local line_count = vim.api.nvim_buf_line_count(0)
+      vim.api.nvim_win_set_cursor(0, { line_count, 0 })
+    end
+  end,
 })
 
 -- Fix large paste in terminal mode by sending clipboard directly to terminal channel

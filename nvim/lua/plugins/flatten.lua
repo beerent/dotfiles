@@ -12,6 +12,33 @@ return {
             end,
         })
 
+        -- Global QuitPre: when quitting a buffer in a tab that has a hidden
+        -- terminal (replaced by flatten), restore the terminal instead of
+        -- closing the tab / exiting Neovim.
+        vim.api.nvim_create_autocmd("QuitPre", {
+            callback = function()
+                local term_buf = vim.t._flatten_term_buf
+                if not term_buf or not vim.api.nvim_buf_is_valid(term_buf) then
+                    return
+                end
+                if vim.bo.modified then
+                    return
+                end
+                -- Don't duplicate if terminal is already visible in this tab
+                for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                    if vim.api.nvim_win_get_buf(w) == term_buf then
+                        return
+                    end
+                end
+                vim.api.nvim_open_win(term_buf, false, { split = "below" })
+                vim.schedule(function()
+                    if vim.api.nvim_buf_is_valid(term_buf) then
+                        vim.cmd("startinsert")
+                    end
+                end)
+            end,
+        })
+
         require("flatten").setup({
             window = {
                 open = function(opts)
@@ -27,6 +54,10 @@ return {
                         if vim.bo[buf].buftype == "terminal" then
                             vim.api.nvim_win_set_buf(win, focus.bufnr)
                             vim.api.nvim_set_current_win(win)
+
+                            -- Save terminal buffer on the tab so it survives buffer replacements
+                            vim.t._flatten_term_buf = buf
+
                             if opts.guest_cwd and opts.guest_cwd ~= "" then
                                 vim.cmd("tcd " .. opts.guest_cwd)
                             end

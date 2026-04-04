@@ -51,6 +51,13 @@ local function find_tab_for_buffer(target_bufnr)
     if tabpage and vim.api.nvim_tabpage_is_valid(tabpage) then
         return vim.api.nvim_tabpage_get_number(tabpage)
     end
+    -- Fallback: buffer may be hidden by flatten (replaced with a file/directory)
+    for tabnr = 1, vim.fn.tabpagenr("$") do
+        local flatten_buf = vim.fn.gettabvar(tabnr, "_flatten_term_buf")
+        if type(flatten_buf) == "number" and flatten_buf == target_bufnr then
+            return tabnr
+        end
+    end
     return nil
 end
 
