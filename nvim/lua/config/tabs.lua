@@ -44,11 +44,15 @@ function M.tabline()
             end
         end
 
-        -- Show Claude status icon on non-current tabs
-        local has_bell = vim.fn.gettabvar(tabnr, "claude_bell") == 1 and tabnr ~= current_tab
-        local is_compacting = vim.fn.gettabvar(tabnr, "claude_compacting") == 1 and tabnr ~= current_tab
-        local is_waiting = vim.fn.gettabvar(tabnr, "claude_waiting") == 1 and tabnr ~= current_tab
-        local is_running = vim.fn.gettabvar(tabnr, "claude_running") == 1 and tabnr ~= current_tab
+        -- Show Claude status icon when user isn't focused on the Claude terminal.
+        -- For non-current tabs: always show. For current tab: show only if user
+        -- is in a non-terminal split (so the indicator bubbles up).
+        local show_indicator = tabnr ~= current_tab
+            or (tabnr == current_tab and vim.bo.buftype ~= "terminal")
+        local has_bell = vim.fn.gettabvar(tabnr, "claude_bell") == 1 and show_indicator
+        local is_compacting = vim.fn.gettabvar(tabnr, "claude_compacting") == 1 and show_indicator
+        local is_waiting = vim.fn.gettabvar(tabnr, "claude_waiting") == 1 and show_indicator
+        local is_running = vim.fn.gettabvar(tabnr, "claude_running") == 1 and show_indicator
         local hl_restore = "%#" .. (tabnr == current_tab and "TabLineSel" or "TabLine") .. "#"
         if has_bell then
             s = s .. " %#DiagnosticWarn#" .. "🔔" .. hl_restore

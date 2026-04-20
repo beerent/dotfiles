@@ -100,21 +100,33 @@ local function set_tab_var(tty, var_name, value)
     vim.cmd("redrawtabline")
 end
 
--- Set a tab variable only on non-current tabs (for background tab indicators)
+-- Check if the current window holds the terminal matching the given TTY
+local function current_win_is_tty_terminal(tty)
+    if not tty then return false end
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.bo[bufnr].buftype ~= "terminal" then return false end
+    if not vim.b[bufnr].terminal_tty then cache_tty(bufnr) end
+    return vim.b[bufnr].terminal_tty == tty
+end
+
+-- Set a tab variable for background indicators.
+-- Skips only when the user is focused directly on the matching terminal window.
+-- This means splits in the same tab still get indicators.
 local function set_tab_var_non_current(tty, var_name)
     local current_tab = vim.fn.tabpagenr()
     tty = tty and tty:gsub("%s+", "") or nil
 
     local tabnr = find_tab_by_tty(tty)
     if tabnr then
-        if tabnr ~= current_tab then
+        -- Skip only if user is directly focused on this terminal
+        if tabnr ~= current_tab or not current_win_is_tty_terminal(tty) then
             vim.fn.settabvar(tabnr, var_name, 1)
         end
         vim.cmd("redrawtabline")
         return
     end
 
-    -- Fallback: apply to all terminal tabs
+    -- Fallback: apply to all terminal tabs (non-current only since we can't match TTY)
     for t = 1, vim.fn.tabpagenr("$") do
         if t ~= current_tab then
             for _, bufnr in ipairs(vim.fn.tabpagebuflist(t)) do
@@ -210,6 +222,30 @@ function M.setup()
             if permission_timer then
                 vim.fn.timer_stop(permission_timer)
                 permission_timer = nil
+            end
+        end,
+    })
+
+    -- Clear indicators when focusing a terminal split (not just tab switch)
+    vim.api.nvim_create_autocmd("WinEnter", {
+        group = group,
+        callback = function()
+            if vim.bo.buftype == "terminal" then
+                local tabnr = vim.fn.tabpagenr()
+                local needs_redraw = false
+                for _, var in ipairs({ "claude_bell", "claude_waiting", "claude_compacting" }) do
+                    if vim.fn.gettabvar(tabnr, var) == 1 then
+                        vim.fn.settabvar(tabnr, var, 0)
+                        needs_redraw = true
+                    end
+                end
+                if needs_redraw then
+                    vim.cmd("redrawtabline")
+                end
+                if permission_timer then
+                    vim.fn.timer_stop(permission_timer)
+                    permission_timer = nil
+                end
             end
         end,
     })
