@@ -11,8 +11,6 @@ vim.opt.smartindent = true
 vim.opt.shiftwidth = 2
 vim.opt.breakindent = true
 
-vim.g.copilot_no_tab_map = true
-
 vim.g.swapfile = false
 
 -- [[ Setting options ]]

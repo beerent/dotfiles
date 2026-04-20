@@ -157,36 +157,3 @@ vim.api.nvim_create_autocmd("TabEnter", {
     end,
 })
 
--- Prevent Copilot from breaking when terminal buffers are opened
--- Explicitly detach Copilot from terminal buffers
-vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = "*",
-  callback = function()
-    vim.b.copilot_enabled = false
-  end,
-})
-
--- Re-enable Copilot when leaving terminal and entering a normal buffer
-vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = "*",
-  callback = function()
-    local buftype = vim.bo.buftype
-    local filetype = vim.bo.filetype
-    -- Only for normal file buffers (not terminal, quickfix, etc.)
-    if buftype == "" and filetype ~= "" then
-      vim.b.copilot_enabled = nil
-      -- Re-attach Copilot LSP client if it got detached (e.g., after opening a file from a terminal tab)
-      vim.schedule(function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        local attached = vim.lsp.get_clients({ bufnr = bufnr, name = "copilot" })
-        if #attached == 0 then
-          local copilot_clients = vim.lsp.get_clients({ name = "copilot" })
-          if #copilot_clients > 0 then
-            vim.lsp.buf_attach_client(bufnr, copilot_clients[1].id)
-          end
-        end
-      end)
-    end
-  end,
-})
-

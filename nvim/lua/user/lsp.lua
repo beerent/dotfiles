@@ -1,8 +1,5 @@
 local M = {}
 
--- Note: We use zbirenbaum/copilot.lua instead of native copilot LSP
--- No need to disable it - native LSP servers only start when explicitly enabled
-
 -- Mason setup (for installing LSP servers)
 require("mason").setup()
 require("mason-lspconfig").setup({
@@ -60,9 +57,7 @@ cmp.setup({
             select = true,
         }),
         ["<Tab>"] = cmp.mapping(function(fallback)
-            if require("copilot.suggestion").is_visible() then
-                require("copilot.suggestion").accept()
-            elseif cmp.visible() then
+            if cmp.visible() then
                 cmp.select_next_item()
             elseif luasnip.expand_or_locally_jumpable() then
                 luasnip.expand_or_jump()

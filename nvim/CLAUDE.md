@@ -34,7 +34,6 @@ The configuration follows a modular Lua-based structure:
 - **Git**: vim-fugitive, gitsigns.nvim, and lazygit.nvim integration
 - **File Management**: neo-tree.nvim (positioned on right side)
 - **Search**: telescope.nvim for fuzzy finding
-- **AI Assistance**: copilot.lua for code completion
 
 ### Development Workflow
 - **Harpoon** for quick file navigation
@@ -92,5 +91,4 @@ Since this is a Neovim configuration, development involves:
 - Plugin configurations are separated into individual files where complex
 - LSP setup focuses on Lua development but can be extended for other languages
 - Custom keybindings prioritize efficiency with single-key combinations for common operations
-- The setup integrates Copilot for AI-powered code completion
 - Neo-tree is configured to not hijack netrw and positioned on the right side

@@ -1,9 +1,5 @@
 -- [[ Basic Keymaps ]]
 --
-vim.keymap.set("i", "<C-J>", function()
-	require("copilot.suggestion").accept()
-end, { silent = true, desc = "Accept Copilot suggestion" })
-
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -80,8 +76,11 @@ vim.keymap.set("t", "<C-l>", "<C-\\><C-n>gt", { desc = "Next tab" })
 
 -- Ctrl+n/p - Navigate splits left/right (from any mode)
 local function split_nav(dir)
+    local wrap = dir == "l" and "1wincmd w" or vim.fn.winnr("$") .. "wincmd w"
     return function()
+        local prev = vim.fn.winnr()
         vim.cmd("wincmd " .. dir)
+        if vim.fn.winnr() == prev then vim.cmd(wrap) end
         if vim.bo.buftype == "terminal" then vim.cmd("startinsert") end
     end
 end
